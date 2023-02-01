@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import EmailEditor from 'react-email-editor'
 import { NavLink } from 'react-router-dom';
 import { Header } from './components/Header';
@@ -6,17 +6,24 @@ import { render } from 'react-dom';
 
 export const EmailTemplate = (props) => {
 
-    const editor = useRef(null);
+    const editorEmail = useRef(null);
+
+    const [ state, setState] = useState(false)
+
+    if ( state ){
+      const templateJson = JSON.parse( localStorage.getItem('Template') )
+      editorEmail.current?.editor.loadDesign(templateJson);
+    }
 
     const saveDesign = () => {
-        editor.current.saveDesign(design => {
+        editorEmail.current?.editor.saveDesign(design => {
             console.log('saveDesign', design)
             localStorage.setItem('Template', JSON.stringify(design))
         })
     }
 
     const exportHtml = () => {
-        editor.current.editor.exportHtml((data) => {
+      editorEmail.current?.editor.exportHtml((data) => {
           const { design, html } = data;
           console.log(html);
         });
@@ -26,12 +33,13 @@ export const EmailTemplate = (props) => {
         // editor instance is created
         // you can load your template here;
         const templateJson = JSON.parse( localStorage.getItem('Template') )
-        editor.current.editor.loadDesign(templateJson);
+        editorEmail.current?.editor.loadDesign(templateJson);
       }
 
       const onReady = () => {
         // editor is ready
         console.log('onReady');
+        setState(!state)
       };
 
     const OnVolver = () => {
@@ -45,7 +53,7 @@ export const EmailTemplate = (props) => {
               <button onClick={saveDesign}>Save Design</button>
               <button onClick={exportHtml}>Export Design</button>
             </Header>
-            <EmailEditor className="emailTemplate" onLoad={onLoad} onReady={onReady} ref={editor}/>
+            <EmailEditor className="emailTemplate" onLoad={onLoad} onReady={onReady} ref={editorEmail}/>
         </>
       
   )
